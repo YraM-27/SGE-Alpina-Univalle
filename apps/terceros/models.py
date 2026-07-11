@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class Cliente(models.Model):
     id_cliente = models.CharField(primary_key=True, max_length=20)
@@ -22,16 +23,4 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
-class Factura(models.Model):
-    id_factura = models.AutoField(primary_key=True)
-    nit = models.CharField(max_length=20)
-    razon_social = models.CharField(max_length=40, blank=True, null=True)
-    direccion = models.CharField(max_length=60)
-    numero_factura = models.IntegerField(unique=True)
-    fecha_hora_emision = models.DateTimeField()
-    metodo_pago = models.CharField(max_length=20)
-    id_cliente = models.ForeignKey(Cliente, models.DO_NOTHING, db_column='id_cliente')
 
-    class Meta:
-        managed = False
-        db_table = 'factura'

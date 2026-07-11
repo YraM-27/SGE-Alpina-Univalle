@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     #mis apps
     'apps.terceros',
     'apps.proveedor',
-
+    'apps.producto',
+    'apps.factura',
 ]
 
 MIDDLEWARE = [
