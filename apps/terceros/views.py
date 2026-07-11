@@ -5,7 +5,8 @@ from django.views.generic import ListView, DetailView
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-from .models import Cliente, Factura
+from .models import Cliente
+from apps.factura.models import Factura
 from .forms import ClienteForm
 
 
