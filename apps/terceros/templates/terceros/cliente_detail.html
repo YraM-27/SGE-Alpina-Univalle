@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ cliente.nombres }} {{ cliente.apellidos }}</h2>
+<ul class="list-group">
+  <li class="list-group-item"><strong>ID:</strong> {{ cliente.id_cliente }}</li>
+  <li class="list-group-item"><strong>Tipo ID:</strong> {{ cliente.tipo_id }}</li>
+  <li class="list-group-item"><strong>Ciudad:</strong> {{ cliente.ciudad }}</li>
+  <li class="list-group-item"><strong>Dirección oficina:</strong> {{ cliente.direccion_op }}</li>
+  <li class="list-group-item"><strong>Dirección residencia:</strong> {{ cliente.direccion_res }}</li>
+  <li class="list-group-item"><strong>Teléfono:</strong> {{ cliente.telefono }}</li>
+  <li class="list-group-item"><strong>Email:</strong> {{ cliente.email }}</li>
+  <li class="list-group-item"><strong>Representante:</strong> {{ cliente.representante }}</li>
+  <li class="list-group-item"><strong>Régimen:</strong> {{ cliente.tipo_regimen }}</li>
+  <li class="list-group-item"><strong>Habeas data:</strong> {{ cliente.habeas_data|yesno:"Sí,No" }}</li>
+</ul>
+<a href="{% url 'clientes:lista' %}" class="btn btn-secondary mt-3">Volver</a>
+{% endblock %}

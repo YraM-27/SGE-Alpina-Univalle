@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Proveedores</h2>
+
+<form method="get" class="mb-3 d-flex">
+  <input type="text" name="q" value="{{ q }}" class="form-control me-2" placeholder="Buscar por nombre, id, tipo o email">
+  <button class="btn btn-primary" type="submit">Buscar</button>
+</form>
+
+<a href="{% url 'proveedores:crear' %}" class="btn btn-success mb-3">+ Nuevo proveedor</a>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th class="text-center">ID</th><th>Nombre</th><th>Ciudad</th><th>Teléfono</th><th>Tipo</th><th class="text-center">Calificación</th><th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for proveedor in proveedores %}
+    <tr>
+      <td class="text-center">{{ proveedor.id_proveedor }}</td>
+      <td>{{ proveedor.nombre }}</td>
+      <td>{{ proveedor.ciudad }}</td>
+      <td>{{ proveedor.telefono }}</td>
+      <td>{{ proveedor.tipo_proveedor }}</td>
+      <td class="text-center">{{ proveedor.calificacion|default:"—" }}</td>
+      <td class="text-nowrap">
+        <div class="btn-group" role="group">
+          <a href="{% url 'proveedores:detalle' proveedor.pk %}" class="btn btn-sm btn-info">Ver</a>
+          <a href="{% url 'proveedores:editar' proveedor.pk %}" class="btn btn-sm btn-warning">Editar</a>
+          <a href="{% url 'proveedores:eliminar' proveedor.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+        </div>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">No hay proveedores registrados.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% include 'proveedor/_paginacion.html' %}
+{% endblock %}
