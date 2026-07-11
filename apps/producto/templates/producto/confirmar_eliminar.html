@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body text-center">
+                <h1 class="h4 text-danger mb-3">Confirmar desactivación</h1>
+                <p class="mb-4">
+                    ¿Estás seguro de que quieres desactivar el producto
+                    <strong>{{ producto.nombre }}</strong>
+                    (<code>{{ producto.id_producto }}</code>)?
+                </p>
+                <p class="text-muted small">
+                    El producto no se eliminará físicamente, solo dejará de aparecer en el listado activo.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <a href="{% url 'producto:lista' %}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            Sí, desactivar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
