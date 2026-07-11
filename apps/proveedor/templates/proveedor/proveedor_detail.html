@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ proveedor.nombre }}</h2>
+<ul class="list-group">
+  <li class="list-group-item"><strong>ID:</strong> {{ proveedor.id_proveedor }}</li>
+  <li class="list-group-item"><strong>Tipo ID:</strong> {{ proveedor.tipo_id }}</li>
+  <li class="list-group-item"><strong>RUT:</strong> {{ proveedor.rut }}</li>
+  <li class="list-group-item"><strong>Ciudad:</strong> {{ proveedor.ciudad }}</li>
+  <li class="list-group-item"><strong>Dirección oficina:</strong> {{ proveedor.direccion_op }}</li>
+  <li class="list-group-item"><strong>Dirección residencia:</strong> {{ proveedor.direccion_res }}</li>
+  <li class="list-group-item"><strong>Teléfono:</strong> {{ proveedor.telefono }}</li>
+  <li class="list-group-item"><strong>Email:</strong> {{ proveedor.email }}</li>
+  <li class="list-group-item"><strong>Representante:</strong> {{ proveedor.representante }}</li>
+  <li class="list-group-item"><strong>Régimen:</strong> {{ proveedor.tipo_regimen }}</li>
+  <li class="list-group-item"><strong>Habeas data:</strong> {{ proveedor.habeas_data|yesno:"Sí,No" }}</li>
+  <li class="list-group-item"><strong>Tipo de proveedor:</strong> {{ proveedor.tipo_proveedor }}</li>
+  <li class="list-group-item"><strong>Tiempo de entrega (días):</strong> {{ proveedor.tiempo_entrega }}</li>
+  <li class="list-group-item"><strong>Contacto comercial:</strong> {{ proveedor.persona_comercial }}</li>
+  <li class="list-group-item"><strong>Contacto cartera/pagos:</strong> {{ proveedor.persona_cartera }}</li>
+  <li class="list-group-item"><strong>Contacto logístico:</strong> {{ proveedor.persona_logistica }}</li>
+  <li class="list-group-item"><strong>Días máx. de pago:</strong> {{ proveedor.num_dias_pago }}</li>
+  <li class="list-group-item"><strong>Calificación:</strong> {{ proveedor.calificacion|default:"Sin calificar" }}</li>
+</ul>
+<a href="{% url 'proveedores:lista' %}" class="btn btn-secondary mt-3">Volver</a>
+{% endblock %}

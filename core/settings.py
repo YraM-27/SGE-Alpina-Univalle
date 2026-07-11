@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     #mis apps
     'apps.terceros',
+    'apps.proveedor',
 
 ]
 
