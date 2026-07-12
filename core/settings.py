@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'apps.proveedor',
     'apps.producto',
     'apps.factura',
-    'apps.ordenPedido'
+    'apps.ordenPedido',
+    'apps.inventario_producto',
 ]
 
 MIDDLEWARE = [
