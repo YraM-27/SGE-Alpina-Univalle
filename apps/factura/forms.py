@@ -9,11 +9,10 @@ class FacturaForm(forms.ModelForm):
     class Meta:
         model = Factura
         fields = [
-            'direccion', 'numero_factura',
+            'numero_factura',
             'fecha_hora_emision', 'metodo_pago', 'id_cliente',
         ]
         widgets = {
-            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
             'numero_factura': forms.NumberInput(attrs={'class': 'form-control'}),
             'fecha_hora_emision': forms.DateTimeInput(attrs={
                 'class': 'form-control', 'type': 'datetime-local',
@@ -29,7 +28,6 @@ class FacturaForm(forms.ModelForm):
             'id_cliente': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
-            'direccion': 'Dirección',
             'numero_factura': 'Número de factura',
             'fecha_hora_emision': 'Fecha y hora de emisión',
             'metodo_pago': 'Método de pago',

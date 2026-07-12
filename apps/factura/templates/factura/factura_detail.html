@@ -49,22 +49,22 @@
                 <td>{{ d.cantidad }}</td>
                 <td>${{ d.precio_unitario }}</td>
                 <td>{{ d.categoria_iva }} (${{ d.iva }})</td>
-                <td>${{ d.subtotal }}</td>
+                <td>${{ d.subtotal|floatformat:2 }}</td>
             </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <tr>
                 <th colspan="4" class="text-end">Subtotal:</th>
-                <th>${{ factura.subtotal }}</th>
+                <th>${{ factura.subtotal|floatformat:2 }}</th>
             </tr>
             <tr>
                 <th colspan="4" class="text-end">IVA total:</th>
-                <th>${{ factura.iva_total }}</th>
+                <th>${{ factura.iva_total|floatformat:2 }}</th>
             </tr>
             <tr class="table-primary">
                 <th colspan="4" class="text-end">Total a pagar:</th>
-                <th>${{ factura.total_pagar }}</th>
+                <th>${{ factura.total_pagar|floatformat:2 }}</th>
             </tr>
         </tfoot>
     </table>

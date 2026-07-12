@@ -43,7 +43,7 @@
                 <td>{{ factura.razon_social|default:"—" }}</td>
                 <td>{{ factura.fecha_hora_emision|date:"d/m/Y H:i" }}</td>
                 <td>{{ factura.metodo_pago }}</td>
-                <td>${{ factura.total_pagar|default:"0.00" }}</td>
+                <td>${{ factura.total_pagar|default:"0.00"|floatformat:2 }}</td>
                 <td>
                     <a href="{% url 'factura:factura_detalle' factura.id_factura %}" class="btn btn-sm btn-outline-primary">Ver</a>
                 </td>

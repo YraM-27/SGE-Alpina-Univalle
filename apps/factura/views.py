@@ -63,6 +63,7 @@ def descontar_stock(producto, cantidad_requerida):
 
 NIT_EMPRESA = '860005224-6'
 RAZON_SOCIAL_EMPRESA = 'Alpina Productos Alimenticios S.A.'
+DIRECCION_EMPRESA = 'Km 3 via Sopo-Briceno, Sopo, Cundinamarca'
 
 def factura_crear(request):
     if request.method == 'POST':
@@ -83,6 +84,7 @@ def factura_crear(request):
                     factura = form.save(commit=False)
                     factura.nit = NIT_EMPRESA
                     factura.razon_social = RAZON_SOCIAL_EMPRESA
+                    factura.direccion = DIRECCION_EMPRESA
                     factura.save()
 
                     formset.instance = factura
