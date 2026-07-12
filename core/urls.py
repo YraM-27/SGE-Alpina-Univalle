@@ -23,4 +23,6 @@ urlpatterns = [
     path('proveedores/', include('apps.proveedor.urls')),
     path('productos/', include('apps.producto.urls')),
     #path('facturas/', include('apps.factura.urls')),
+    path('ordenpedido/', include('apps.ordenPedido.urls')),
 ]
+
