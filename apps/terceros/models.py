@@ -21,6 +21,6 @@ class Cliente(models.Model):
         db_table = 'cliente'
     
     def __str__(self):
-        return self.nombre
+        return f'{self.nombres} {self.apellidos}'
 
 
