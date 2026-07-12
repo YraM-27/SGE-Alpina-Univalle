@@ -9,12 +9,10 @@ class FacturaForm(forms.ModelForm):
     class Meta:
         model = Factura
         fields = [
-            'nit', 'razon_social', 'direccion', 'numero_factura',
+            'direccion', 'numero_factura',
             'fecha_hora_emision', 'metodo_pago', 'id_cliente',
         ]
         widgets = {
-            'nit': forms.TextInput(attrs={'class': 'form-control'}),
-            'razon_social': forms.TextInput(attrs={'class': 'form-control'}),
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),
             'numero_factura': forms.NumberInput(attrs={'class': 'form-control'}),
             'fecha_hora_emision': forms.DateTimeInput(attrs={
@@ -31,8 +29,6 @@ class FacturaForm(forms.ModelForm):
             'id_cliente': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
-            'nit': 'NIT',
-            'razon_social': 'Razón social',
             'direccion': 'Dirección',
             'numero_factura': 'Número de factura',
             'fecha_hora_emision': 'Fecha y hora de emisión',
@@ -61,13 +57,6 @@ class FacturaForm(forms.ModelForm):
             raise ValidationError('Ya existe una factura con este número.')
 
         return numero_factura
-
-    def clean_nit(self):
-        nit = self.cleaned_data.get('nit')
-        if nit:
-            nit = nit.strip()
-        return nit
-
 
 class DetalleFacturaForm(forms.ModelForm):
     class Meta:

@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 
 from .models import Factura, VwFactura, VwDetalleFactura
 from .forms import FacturaForm, DetalleFacturaFormSet
+from apps.inventario_producto.models import InventarioProducto
 
 
 def factura_listar(request):
@@ -17,8 +18,6 @@ def factura_listar(request):
     nit = request.GET.get('nit')
     if numero:
         facturas = facturas.filter(numero_factura__icontains=numero)
-    if nit:
-        facturas = facturas.filter(nit__icontains=nit)
 
     paginator = Paginator(facturas, 15)
     page_obj = paginator.get_page(request.GET.get('page'))
@@ -62,6 +61,9 @@ def descontar_stock(producto, cantidad_requerida):
         inventario.save()
         restante -= descuento
 
+NIT_EMPRESA = '860005224-6'
+RAZON_SOCIAL_EMPRESA = 'Alpina Productos Alimenticios S.A.'
+
 def factura_crear(request):
     if request.method == 'POST':
         form = FacturaForm(request.POST)
@@ -78,7 +80,11 @@ def factura_crear(request):
                             descontar_stock(producto, cantidad)
 
                     # 2. Guardar factura y detalles
-                    factura = form.save()
+                    factura = form.save(commit=False)
+                    factura.nit = NIT_EMPRESA
+                    factura.razon_social = RAZON_SOCIAL_EMPRESA
+                    factura.save()
+
                     formset.instance = factura
                     formset.save()
 
