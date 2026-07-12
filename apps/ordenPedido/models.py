@@ -1,6 +1,18 @@
 from django.db import models
 
 # Create your models here.
+
+class DetallePedido(models.Model):
+    num_orden = models.OneToOneField('OrdenPedido', models.DO_NOTHING, db_column='num_orden', primary_key=True)  # The composite primary key (num_orden, id_insumo) found, that is not supported. The first column is selected.
+    id_insumo = models.ForeignKey('MateriaPrima', models.DO_NOTHING, db_column='id_insumo')
+    cantidad = models.IntegerField(blank=True, null=True)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = 'detalle_pedido'
+        unique_together = (('num_orden', 'id_insumo'),)
+
 class OrdenPedido(models.Model):
     num_orden = models.AutoField(primary_key=True)
     id_proveedor = models.ForeignKey('Proveedor', models.DO_NOTHING, db_column='id_proveedor')
@@ -47,3 +59,13 @@ class CuentaBancaria(models.Model):
     class Meta:
         managed = False
         db_table = 'cuenta_bancaria'
+
+class MateriaPrima(models.Model):
+    id_insumo = models.CharField(primary_key=True, max_length=30)
+    nombre = models.CharField(max_length=50)
+    unidad_medida = models.CharField(max_length=10)
+    demanda_diaria = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'materia_prima'

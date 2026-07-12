@@ -1,43 +1,113 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Órdenes de Pedido</h1>
+
     <a href="{% url 'ordenPedido:crear' %}" class="btn btn-primary">
         + Nueva orden
     </a>
 </div>
 
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+        <form method="get" class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Proveedor</label>
+
+                <select name="id_proveedor" class="form-select" onchange="this.form.submit()">
+                    <option value="">Seleccione un proveedor</option>
+
+                    {% for proveedor in proveedores %}
+                    <option value="{{ proveedor.pk }}"
+                        {% if proveedor.pk == proveedor_seleccionado %}selected{% endif %}>
+                        {{ proveedor.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if proveedor_seleccionado %}
+            <div class="col-md-6">
+                <label class="form-label">Materia Prima</label>
+
+                {% if materias %}
+                <select name="id_insumo" class="form-select" onchange="this.form.submit()">
+                    <option value="">Seleccione una materia prima</option>
+
+                    {% for materia in materias %}
+                    <option value="{{ materia.pk }}"
+                        {% if materia.pk == materia_seleccionada %}selected{% endif %}>
+                        {{ materia.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <div class="alert alert-warning mb-0">
+                    Este proveedor no tiene materias primas asociadas.
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </form>
+
+    </div>
+</div>
+
+{% if materia_seleccionada %}
+
 <div class="card shadow-sm">
     <div class="table-responsive">
+
         <table class="table table-hover align-middle mb-0">
+
             <thead class="table-dark">
                 <tr>
                     <th>N° Orden</th>
+                    <th>RUT</th>
                     <th>Proveedor</th>
-                    <th>Fecha</th>
+                    <th>ID Materia Prima</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Fecha de Pedido</th>
                     <th>Lugar de entrega</th>
                     <th>Estado</th>
                 </tr>
             </thead>
+
             <tbody>
-                {% for orden in ordenes %}
+
+                {% for detalle in detalles %}
                 <tr>
-                    <td><span class="badge bg-secondary">{{ orden.num_orden }}</span></td>
-                    <td>{{ orden.id_proveedor }}</td>
-                    <td>{{ orden.fecha_pedido }}</td>
-                    <td>{{ orden.lugar_entrega }}</td>
-                    <td>{{ orden.estado }}</td>
+                    <td>{{ detalle.num_orden.num_orden }}</td>
+                    <td>{{ detalle.num_orden.id_proveedor.rut}}</td>
+                    <td>{{ detalle.num_orden.id_proveedor.nombre }}</td>
+                    <td>{{ detalle.id_insumo.id_insumo}}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>${{ detalle.precio_unitario }}</td>
+                    <td>{{ detalle.num_orden.fecha_pedido }}</td>
+                    <td>{{ detalle.num_orden.lugar_entrega }}</td>
+                    <td>{{ detalle.num_orden.estado }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center text-muted py-4">
-                        No hay órdenes de pedido registradas.
+                    <td colspan="8" class="text-center text-muted py-4">
+                        No existen órdenes para la materia prima seleccionada.
                     </td>
                 </tr>
                 {% endfor %}
+
             </tbody>
+
         </table>
+
     </div>
 </div>
+
+{% endif %}
+
 {% endblock %}
