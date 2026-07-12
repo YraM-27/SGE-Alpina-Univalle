@@ -9,7 +9,6 @@ from .models import Factura, VwFactura, VwDetalleFactura
 from .forms import FacturaForm, DetalleFacturaFormSet
 
 
-
 def factura_listar(request):
     # Usamos la vista para tener el total ya calculado (con IVA)
     facturas = VwFactura.objects.all().order_by('-fecha_hora_emision')
@@ -27,7 +26,6 @@ def factura_listar(request):
     return render(request, 'factura/factura_list.html', {'page_obj': page_obj})
 
 
-
 def factura_detalle(request, pk):
     factura = get_object_or_404(VwFactura, id_factura=pk)
     detalles = VwDetalleFactura.objects.filter(id_factura=pk)
@@ -37,6 +35,32 @@ def factura_detalle(request, pk):
         'detalles': detalles,
     })
 
+def descontar_stock(producto, cantidad_requerida):
+    """
+    Descuenta 'cantidad_requerida' del producto, tomando stock
+    de una o varias bodegas según disponibilidad.
+    Lanza ValidationError si no hay stock suficiente en total.
+    """
+    inventarios = InventarioProducto.objects.select_for_update().filter(
+        id_producto=producto
+    ).order_by('-stock')  # prioriza bodegas con más stock primero
+
+    stock_total = sum(inv.stock for inv in inventarios)
+
+    if stock_total < cantidad_requerida:
+        raise ValidationError(
+            f'Stock insuficiente para "{producto}". '
+            f'Disponible: {stock_total}, solicitado: {cantidad_requerida}.'
+        )
+
+    restante = cantidad_requerida
+    for inventario in inventarios:
+        if restante <= 0:
+            break
+        descuento = min(inventario.stock, restante)
+        inventario.stock -= descuento
+        inventario.save()
+        restante -= descuento
 
 def factura_crear(request):
     if request.method == 'POST':
@@ -46,14 +70,21 @@ def factura_crear(request):
         if form.is_valid() and formset.is_valid():
             try:
                 with transaction.atomic():
+                    # 1. Validar stock y descontar por cada producto
+                    for detalle_form in formset:
+                        if detalle_form.cleaned_data and not detalle_form.cleaned_data.get('DELETE'):
+                            producto = detalle_form.cleaned_data['id_producto']
+                            cantidad = detalle_form.cleaned_data['cantidad']
+                            descontar_stock(producto, cantidad)
+
+                    # 2. Guardar factura y detalles
                     factura = form.save()
                     formset.instance = factura
                     formset.save()
-                messages.success(
-                    request,
-                    f'Factura N.º {factura.numero_factura} creada correctamente.'
-                )
-                return redirect('factura_detalle', pk=factura.pk)
+
+                messages.success(request, f'Factura N.º {factura.numero_factura} creada correctamente.')
+                return redirect('factura:factura_detalle', pk=factura.pk)
+
             except ValidationError as e:
                 messages.error(request, str(e))
         else:
@@ -66,7 +97,6 @@ def factura_crear(request):
         'form': form,
         'formset': formset,
     })
-
 
 
 def factura_editar(request, pk):
