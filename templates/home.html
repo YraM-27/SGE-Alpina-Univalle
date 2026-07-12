@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-4">SGE Alpina Univalle</h1>
+<p class="text-muted mb-4">Sistema de Gestión Empresarial — selecciona un módulo:</p>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Clientes</h5>
+        <p class="card-text">Registro, consulta, edición y certificación bancaria de clientes.</p>
+        <a href="{% url 'clientes:lista' %}" class="btn btn-primary">Entrar</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Proveedores</h5>
+        <p class="card-text">Registro, consulta, edición y certificación bancaria de proveedores.</p>
+        <a href="{% url 'proveedores:lista' %}" class="btn btn-primary">Entrar</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Productos</h5>
+        <p class="card-text">Gestión de insumos y productos, con eliminación lógica.</p>
+        <a href="{% url 'producto:lista' %}" class="btn btn-primary">Entrar</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Facturas</h5>
+        <p class="card-text">Facturación electrónica y cálculo de IVA.</p>
+        <a href="/facturas/" class="btn btn-primary">Entrar</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Órdenes de pedido</h5>
+        <p class="card-text">Compras a proveedores registrados.</p>
+        <a href="/ordenpedido/" class="btn btn-primary">Entrar</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Inventario</h5>
+        <p class="card-text">Control de stock y alertas de reabastecimiento.</p>
+        <a href="/inventario/" class="btn btn-primary">Entrar</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
