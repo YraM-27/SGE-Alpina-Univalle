@@ -1,6 +1,6 @@
 from django.db import models
 from apps.producto.models import Producto
-from apps.terceros.models import Cliente
+from apps.clientes.models import Cliente
 
 class Factura(models.Model):
     id_factura = models.AutoField(primary_key=True)

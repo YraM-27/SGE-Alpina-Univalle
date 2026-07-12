@@ -1,5 +1,23 @@
 from django.db import models
 
+class CuentaBancaria(models.Model):
+    """
+    esta tabla también la usa Cliente y (más adelante) Empleado.
+    No dupliquen este modelo en otra app: impórtenlo desde
+    apps.proveedor.models cuando lo necesiten en otro lado.
+    """
+    id_cuenta = models.CharField(primary_key=True, max_length=30)
+    nombre_banco = models.CharField(max_length=30)
+    tipo_cuenta = models.CharField(max_length=30)
+    num_cuenta = models.CharField(max_length=30)
+
+    class Meta:
+        managed = False
+        db_table = 'cuenta_bancaria'
+
+    def __str__(self):
+        return f'{self.nombre_banco} - {self.tipo_cuenta} ({self.num_cuenta})'
+
 
 class Proveedor(models.Model):
     id_proveedor = models.CharField(primary_key=True, max_length=30)
@@ -21,6 +39,10 @@ class Proveedor(models.Model):
     persona_logistica = models.CharField(max_length=60)
     num_dias_pago = models.IntegerField()
     calificacion = models.IntegerField(blank=True, null=True)
+    id_cuenta = models.ForeignKey(
+        CuentaBancaria, models.DO_NOTHING, db_column='id_cuenta',
+        blank=True, null=True
+    )
 
     class Meta:
         managed = False

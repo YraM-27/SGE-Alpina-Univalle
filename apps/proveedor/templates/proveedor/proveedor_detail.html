@@ -19,7 +19,16 @@
   <li class="list-group-item"><strong>Contacto cartera/pagos:</strong> {{ proveedor.persona_cartera }}</li>
   <li class="list-group-item"><strong>Contacto logístico:</strong> {{ proveedor.persona_logistica }}</li>
   <li class="list-group-item"><strong>Días máx. de pago:</strong> {{ proveedor.num_dias_pago }}</li>
-  <li class="list-group-item"><strong>Calificación:</strong> {{ proveedor.calificacion|default:"Sin calificar" }}</li>
+ <li class="list-group-item"><strong>Calificación:</strong> {{ proveedor.calificacion|default:"Sin calificar" }}</li>
+  <li class="list-group-item">
+    <strong>Certificación bancaria:</strong>
+    {% if proveedor.id_cuenta %}
+      {{ proveedor.id_cuenta.nombre_banco }} — {{ proveedor.id_cuenta.tipo_cuenta }} — {{ proveedor.id_cuenta.num_cuenta }}
+    {% else %}
+      No registrada
+    {% endif %}
+  </li>
+</ul>
 </ul>
 <a href="{% url 'proveedores:lista' %}" class="btn btn-secondary mt-3">Volver</a>
 {% endblock %}
