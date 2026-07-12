@@ -21,13 +21,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('clientes/', include('apps.clientes.urls')),
     path('proveedores/', include('apps.proveedor.urls')),
-    path('productos/', include('apps.producto.urls')),
-<<<<<<< HEAD
-    #path('facturas/', include('apps.factura.urls')),
-    path('ordenpedido/', include('apps.ordenPedido.urls')),
-=======
     path('facturas/', include('apps.factura.urls')),
+    path('productos/', include('apps.producto.urls')),
     path('inventario/', include('apps.inventario_producto.urls')),
->>>>>>> origin/develop
+    path('ordenpedido/', include('apps.ordenPedido.urls')),
+
 ]
 
