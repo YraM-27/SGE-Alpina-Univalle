@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Factura N.º {{ factura.numero_factura }}</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">NIT</dt>
+                <dd class="col-sm-9">{{ factura.nit }}</dd>
+
+                <dt class="col-sm-3">Razón social</dt>
+                <dd class="col-sm-9">{{ factura.razon_social|default:"—" }}</dd>
+
+                <dt class="col-sm-3">Dirección</dt>
+                <dd class="col-sm-9">{{ factura.direccion }}</dd>
+
+                <dt class="col-sm-3">Fecha de emisión</dt>
+                <dd class="col-sm-9">{{ factura.fecha_hora_emision|date:"d/m/Y H:i" }}</dd>
+
+                <dt class="col-sm-3">Método de pago</dt>
+                <dd class="col-sm-9">{{ factura.metodo_pago }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <h5>Detalles</h5>
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio unitario</th>
+                <th>IVA</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in detalles %}
+            <tr>
+                <td>{{ d.nombre }}</td>
+                <td>{{ d.cantidad }}</td>
+                <td>${{ d.precio_unitario }}</td>
+                <td>{{ d.categoria_iva }} (${{ d.iva }})</td>
+                <td>${{ d.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4" class="text-end">Subtotal:</th>
+                <th>${{ factura.subtotal }}</th>
+            </tr>
+            <tr>
+                <th colspan="4" class="text-end">IVA total:</th>
+                <th>${{ factura.iva_total }}</th>
+            </tr>
+            <tr class="table-primary">
+                <th colspan="4" class="text-end">Total a pagar:</th>
+                <th>${{ factura.total_pagar }}</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="alert alert-secondary">
+        🔒 Esta factura es un documento contable definitivo y no puede editarse ni eliminarse.
+    </div>
+
+    <a href="{% url 'factura_listar' %}" class="btn btn-secondary">Volver al listado</a>
+</div>
+{% endblock %}
