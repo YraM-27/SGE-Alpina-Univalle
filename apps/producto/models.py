@@ -38,3 +38,5 @@ class Producto(models.Model):
         managed = False
         db_table = 'producto'
 
+    def __str__(self):
+        return f'{self.nombre} ({self.id_producto})'
