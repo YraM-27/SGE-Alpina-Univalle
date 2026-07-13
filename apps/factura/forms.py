@@ -1,7 +1,7 @@
 import uuid
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from .models import Factura, DetalleFactura, Cliente, Producto
 
 
@@ -93,13 +93,46 @@ class DetalleFacturaForm(forms.ModelForm):
         return instance
 
 
+class DetalleFacturaBaseFormSet(BaseInlineFormSet):
+    """
+    Formset personalizado que valida el límite máximo de productos
+    por factura, de acuerdo a las necesidades del negocio (máx. 30).
+    """
+    MAX_PRODUCTOS = 30
+
+    def clean(self):
+        super().clean()
+
+        if any(self.errors):
+            return
+
+        forms_validos = [
+            f for f in self.forms
+            if f.cleaned_data and not f.cleaned_data.get('DELETE')
+        ]
+
+        if len(forms_validos) > self.MAX_PRODUCTOS:
+            raise ValidationError(
+                f'No se pueden registrar más de {self.MAX_PRODUCTOS} '
+                f'productos en una sola factura.'
+            )
+
+        if len(forms_validos) == 0:
+            raise ValidationError(
+                'Debe agregar al menos un producto a la factura.'
+            )
+
+
 DetalleFacturaFormSet = inlineformset_factory(
     Factura,
     DetalleFactura,
     form=DetalleFacturaForm,
+    formset=DetalleFacturaBaseFormSet,
     fk_name='id_factura',
-    extra=1,
-    can_delete=True,   # solo aplica mientras se arma la factura, antes de guardar
+    extra=5,
+    max_num=30,
+    validate_max=True,
+    can_delete=True,
     min_num=1,
     validate_min=True,
 )

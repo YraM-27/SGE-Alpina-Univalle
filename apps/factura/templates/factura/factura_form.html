@@ -1,12 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Nueva factura</h2>
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4">Nueva factura</h2>
 
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         {% endfor %}
     {% endif %}
 
@@ -17,43 +20,132 @@
             <div class="alert alert-danger">{{ form.non_field_errors }}</div>
         {% endif %}
 
-        <h5>Datos de la factura</h5>
-        {% for field in form %}
-        <div class="mb-3">
-            <label class="form-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
-        </div>
-        {% endfor %}
-
-        <hr>
-        <h5>Detalles de la factura</h5>
-        {{ formset.management_form }}
-
-        {% if formset.non_form_errors %}
-            <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
-        {% endif %}
-
-        {% for detalle_form in formset %}
-        <div class="row align-items-end border rounded p-2 mb-2">
-            {% for field in detalle_form.visible_fields %}
-            <div class="col">
-                <label class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Datos de la factura</h5>
             </div>
-            {% endfor %}
-            {% if formset.can_delete %}
-            <div class="col-auto">
-                <label class="form-label d-block">&nbsp;</label>
-                {{ detalle_form.DELETE }}
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for field in form %}
+                    <div class="col-md-6">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-            {% endif %}
         </div>
-        {% endfor %}
 
-        <button type="submit" class="btn btn-primary mt-3">Guardar factura</button>
-        <a href="{% url 'factura:factura_listar' %}" class="btn btn-secondary">Cancelar</a>
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Detalles de la factura</h5>
+                <span class="badge bg-light text-dark" id="contador-productos">
+                    <span id="conteo-actual">{{ formset.total_form_count }}</span> / 30 productos
+                </span>
+            </div>
+            <div class="card-body">
+                {{ formset.management_form }}
+
+                {% if formset.non_form_errors %}
+                    <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+                {% endif %}
+
+                <div id="detalles-container">
+                    {% for detalle_form in formset %}
+                    <div class="row align-items-end border rounded p-3 mb-2 detalle-form">
+                        {% for field in detalle_form.visible_fields %}
+                            {% if field.name != 'DELETE' %}
+                            <div class="col">
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if formset.can_delete %}
+                        <div class="col-auto text-center">
+                            <label class="form-label d-block small text-muted">Quitar</label>
+                            {{ detalle_form.DELETE }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" id="btn-agregar-detalle" class="btn btn-sm btn-outline-primary mt-2">
+                    + Agregar producto
+                </button>
+                <div id="limite-alcanzado" class="alert alert-warning mt-2 d-none">
+                    Has alcanzado el máximo de 30 productos por factura.
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg px-4">Guardar factura</button>
+            <a href="{% url 'factura:factura_listar' %}" class="btn btn-outline-secondary btn-lg px-4">Cancelar</a>
+        </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const MAX_PRODUCTOS = 30;
+
+    const container = document.getElementById('detalles-container');
+    const addButton = document.getElementById('btn-agregar-detalle');
+    const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    const contador = document.getElementById('conteo-actual');
+    const limiteAviso = document.getElementById('limite-alcanzado');
+
+    function actualizarContador() {
+        const actual = parseInt(totalFormsInput.value);
+        contador.textContent = actual;
+
+        if (actual >= MAX_PRODUCTOS) {
+            addButton.disabled = true;
+            limiteAviso.classList.remove('d-none');
+        } else {
+            addButton.disabled = false;
+            limiteAviso.classList.add('d-none');
+        }
+    }
+
+    addButton.addEventListener('click', function () {
+        const formCount = parseInt(totalFormsInput.value);
+
+        if (formCount >= MAX_PRODUCTOS) {
+            return; // no agrega más allá del límite
+        }
+
+        const templateForm = container.querySelector('.detalle-form');
+        const newForm = templateForm.cloneNode(true);
+
+        newForm.innerHTML = newForm.innerHTML.replace(
+            new RegExp(`-(\\d+)-`, 'g'),
+            `-${formCount}-`
+        );
+
+        newForm.querySelectorAll('input, select').forEach(function (input) {
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            } else if (input.type !== 'hidden') {
+                input.value = '';
+            }
+        });
+
+        container.appendChild(newForm);
+        totalFormsInput.value = formCount + 1;
+        actualizarContador();
+    });
+
+    actualizarContador(); // estado inicial
+});
+</script>
 {% endblock %}
