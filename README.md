@@ -60,8 +60,6 @@ Paula Mariana Murillo Huertas - 2436488
 
 ![Diagrama Entidad-Relación](docs/Diagrama MER.png)
 
-Diccionario de Datos Resumido)
-
 
 
 **Diccionario de Datos Resumido**
