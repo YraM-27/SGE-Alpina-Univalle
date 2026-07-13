@@ -40,3 +40,17 @@ class Producto(models.Model):
 
     def __str__(self):
         return f'{self.nombre} ({self.id_producto})'
+    
+class PrecioInicialProducto(models.Model):
+    id_producto = models.OneToOneField(
+        Producto, on_delete=models.CASCADE, db_column='id_producto',
+        related_name='precio_inicial'
+    )
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'precio_inicial_producto'
+
+    def __str__(self):
+        return f'{self.id_producto} - ${self.precio}'

@@ -3,6 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from .models import Factura, DetalleFactura, Cliente, Producto
+from apps.producto.models import PrecioInicialProducto
 
 
 class FacturaForm(forms.ModelForm):
@@ -36,7 +37,6 @@ class FacturaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Si ya existe (factura ya emitida), todo el formulario es de solo lectura
         if self.instance and self.instance.pk:
             for field in self.fields.values():
                 field.disabled = True
@@ -44,31 +44,26 @@ class FacturaForm(forms.ModelForm):
 
     def clean_numero_factura(self):
         numero_factura = self.cleaned_data.get('numero_factura')
-
         if self.instance and self.instance.pk:
             return self.instance.numero_factura
-
         if numero_factura is not None and numero_factura <= 0:
             raise ValidationError('El número de factura debe ser positivo.')
-
         if Factura.objects.filter(numero_factura=numero_factura).exists():
             raise ValidationError('Ya existe una factura con este número.')
-
         return numero_factura
-    
+
+
 class DetalleFacturaForm(forms.ModelForm):
     class Meta:
         model = DetalleFactura
-        fields = ['id_producto', 'cantidad', 'precio_unitario']
+        fields = ['id_producto', 'cantidad']  # ← precio_unitario ya no se pide
         widgets = {
             'id_producto': forms.Select(attrs={'class': 'form-control'}),
             'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
         labels = {
             'id_producto': 'Producto',
             'cantidad': 'Cantidad',
-            'precio_unitario': 'Precio unitario',
         }
 
     def clean_cantidad(self):
@@ -77,26 +72,89 @@ class DetalleFacturaForm(forms.ModelForm):
             raise ValidationError('La cantidad debe ser mayor que cero.')
         return cantidad
 
-    def clean_precio_unitario(self):
-        precio_unitario = self.cleaned_data.get('precio_unitario')
-        if precio_unitario is not None and precio_unitario <= 0:
-            raise ValidationError('El precio unitario debe ser mayor que cero.')
-        return precio_unitario
+    def clean(self):
+        cleaned_data = super().clean()
+        producto = cleaned_data.get('id_producto')
+
+        if producto and not cleaned_data.get('DELETE'):
+            precio = self._obtener_precio_actual(producto)
+            if precio is None:
+                raise ValidationError(
+                    f'"{producto}" no tiene ningún precio registrado. '
+                    f'Debes registrar su precio inicial antes de facturarlo '
+                    f'(sección "Registrar precio inicial de producto").'
+                )
+            self._precio_calculado = precio
+
+        return cleaned_data
+
+    def _obtener_precio_actual(self, producto):
+        # 1. Prioriza el último precio realmente facturado
+        ultimo_detalle = (
+            DetalleFactura.objects
+            .filter(id_producto=producto)
+            .select_related('id_factura')
+            .order_by('-id_factura__fecha_hora_emision')
+            .first()
+        )
+        if ultimo_detalle:
+            return ultimo_detalle.precio_unitario
+
+        # 2. Si nunca se ha facturado, usa el precio inicial registrado
+        try:
+            return producto.precio_inicial.precio
+        except PrecioInicialProducto.DoesNotExist:
+            return None
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         if not instance.pk:
             instance.id_detalle_factura = uuid.uuid4().hex[:30]
+        instance.precio_unitario = self._precio_calculado
         if commit:
             instance.save()
         return instance
-    
+
+
+class DetalleFacturaBaseFormSet(BaseInlineFormSet):
+    """
+    Formset personalizado que valida el límite máximo de productos
+    por factura, de acuerdo a las necesidades del negocio (máx. 30).
+    """
+    MAX_PRODUCTOS = 30
+
+    def clean(self):
+        super().clean()
+
+        if any(self.errors):
+            return
+
+        forms_validos = [
+            f for f in self.forms
+            if f.cleaned_data and not f.cleaned_data.get('DELETE')
+        ]
+
+        if len(forms_validos) > self.MAX_PRODUCTOS:
+            raise ValidationError(
+                f'No se pueden registrar más de {self.MAX_PRODUCTOS} '
+                f'productos en una sola factura.'
+            )
+
+        if len(forms_validos) == 0:
+            raise ValidationError(
+                'Debe agregar al menos un producto a la factura.'
+            )
+
+
 DetalleFacturaFormSet = inlineformset_factory(
     Factura,
     DetalleFactura,
     form=DetalleFacturaForm,
+    formset=DetalleFacturaBaseFormSet,
     fk_name='id_factura',
-    extra=5,   # ajusta el número según cuántos productos esperas por factura normalmente
+    extra=5,
+    max_num=30,
+    validate_max=True,
     can_delete=True,
     min_num=1,
     validate_min=True,
