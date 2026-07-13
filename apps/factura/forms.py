@@ -55,7 +55,7 @@ class FacturaForm(forms.ModelForm):
             raise ValidationError('Ya existe una factura con este número.')
 
         return numero_factura
-
+    
 class DetalleFacturaForm(forms.ModelForm):
     class Meta:
         model = DetalleFactura
@@ -86,52 +86,17 @@ class DetalleFacturaForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         if not instance.pk:
-            # Genera el PK manual ya que id_detalle_factura no es autoincremental
             instance.id_detalle_factura = uuid.uuid4().hex[:30]
         if commit:
             instance.save()
         return instance
-
-
-class DetalleFacturaBaseFormSet(BaseInlineFormSet):
-    """
-    Formset personalizado que valida el límite máximo de productos
-    por factura, de acuerdo a las necesidades del negocio (máx. 30).
-    """
-    MAX_PRODUCTOS = 30
-
-    def clean(self):
-        super().clean()
-
-        if any(self.errors):
-            return
-
-        forms_validos = [
-            f for f in self.forms
-            if f.cleaned_data and not f.cleaned_data.get('DELETE')
-        ]
-
-        if len(forms_validos) > self.MAX_PRODUCTOS:
-            raise ValidationError(
-                f'No se pueden registrar más de {self.MAX_PRODUCTOS} '
-                f'productos en una sola factura.'
-            )
-
-        if len(forms_validos) == 0:
-            raise ValidationError(
-                'Debe agregar al menos un producto a la factura.'
-            )
-
-
+    
 DetalleFacturaFormSet = inlineformset_factory(
     Factura,
     DetalleFactura,
     form=DetalleFacturaForm,
-    formset=DetalleFacturaBaseFormSet,
     fk_name='id_factura',
-    extra=5,
-    max_num=30,
-    validate_max=True,
+    extra=5,   # ajusta el número según cuántos productos esperas por factura normalmente
     can_delete=True,
     min_num=1,
     validate_min=True,

@@ -40,11 +40,8 @@
         </div>
 
         <div class="card mb-4">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <div class="card-header bg-dark text-white">
                 <h5 class="mb-0">Detalles de la factura</h5>
-                <span class="badge bg-light text-dark" id="contador-productos">
-                    <span id="conteo-actual">{{ formset.total_form_count }}</span> / 30 productos
-                </span>
             </div>
             <div class="card-body">
                 {{ formset.management_form }}
@@ -53,37 +50,28 @@
                     <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
                 {% endif %}
 
-                <div id="detalles-container">
-                    {% for detalle_form in formset %}
-                    <div class="row align-items-end border rounded p-3 mb-2 detalle-form">
-                        {% for field in detalle_form.visible_fields %}
-                            {% if field.name != 'DELETE' %}
-                            <div class="col">
-                                <label class="form-label">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.errors %}
-                                    <div class="text-danger small">{{ field.errors }}</div>
-                                {% endif %}
-                            </div>
+                {% for detalle_form in formset %}
+                <div class="row align-items-end border rounded p-3 mb-2">
+                    {% for field in detalle_form.visible_fields %}
+                        {% if field.name != 'DELETE' %}
+                        <div class="col">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors }}</div>
                             {% endif %}
-                        {% endfor %}
-
-                        {% if formset.can_delete %}
-                        <div class="col-auto text-center">
-                            <label class="form-label d-block small text-muted">Quitar</label>
-                            {{ detalle_form.DELETE }}
                         </div>
                         {% endif %}
-                    </div>
                     {% endfor %}
-                </div>
 
-                <button type="button" id="btn-agregar-detalle" class="btn btn-sm btn-outline-primary mt-2">
-                    + Agregar producto
-                </button>
-                <div id="limite-alcanzado" class="alert alert-warning mt-2 d-none">
-                    Has alcanzado el máximo de 30 productos por factura.
+                    {% if formset.can_delete %}
+                    <div class="col-auto text-center">
+                        <label class="form-label d-block small text-muted">Quitar</label>
+                        {{ detalle_form.DELETE }}
+                    </div>
+                    {% endif %}
                 </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -93,59 +81,4 @@
         </div>
     </form>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const MAX_PRODUCTOS = 30;
-
-    const container = document.getElementById('detalles-container');
-    const addButton = document.getElementById('btn-agregar-detalle');
-    const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
-    const contador = document.getElementById('conteo-actual');
-    const limiteAviso = document.getElementById('limite-alcanzado');
-
-    function actualizarContador() {
-        const actual = parseInt(totalFormsInput.value);
-        contador.textContent = actual;
-
-        if (actual >= MAX_PRODUCTOS) {
-            addButton.disabled = true;
-            limiteAviso.classList.remove('d-none');
-        } else {
-            addButton.disabled = false;
-            limiteAviso.classList.add('d-none');
-        }
-    }
-
-    addButton.addEventListener('click', function () {
-        const formCount = parseInt(totalFormsInput.value);
-
-        if (formCount >= MAX_PRODUCTOS) {
-            return; // no agrega más allá del límite
-        }
-
-        const templateForm = container.querySelector('.detalle-form');
-        const newForm = templateForm.cloneNode(true);
-
-        newForm.innerHTML = newForm.innerHTML.replace(
-            new RegExp(`-(\\d+)-`, 'g'),
-            `-${formCount}-`
-        );
-
-        newForm.querySelectorAll('input, select').forEach(function (input) {
-            if (input.type === 'checkbox') {
-                input.checked = false;
-            } else if (input.type !== 'hidden') {
-                input.value = '';
-            }
-        });
-
-        container.appendChild(newForm);
-        totalFormsInput.value = formCount + 1;
-        actualizarContador();
-    });
-
-    actualizarContador(); // estado inicial
-});
-</script>
 {% endblock %}
