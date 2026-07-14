@@ -27,6 +27,8 @@ urlpatterns = [
     path('productos/', include('apps.producto.urls')),
     path('inventario/', include('apps.inventario_producto.urls')),
     path('ordenpedido/', include('apps.ordenPedido.urls')),
+    path('gestioninventario/', include('apps.gestioninventario.urls')),
+
 
 ]
 

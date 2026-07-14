@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'apps.factura',
     'apps.ordenPedido',
     'apps.inventario_producto',
+    'apps.gestioninventario',
+
+
 ]
 
 MIDDLEWARE = [
