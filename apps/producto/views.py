@@ -7,6 +7,7 @@ from django.db.models import OuterRef, Subquery
 from .models import Producto
 from apps.factura.models import DetalleFactura
 from .forms import ProductoForm
+from .forms import PrecioInicialForm
 
 def lista_productos(request):
     ultimo_precio = DetalleFactura.objects.filter(
@@ -52,3 +53,19 @@ def eliminar_producto(request, pk):
         messages.success(request, 'Producto desactivado correctamente.')
         return redirect('producto:lista')
     return render(request, 'producto/confirmar_eliminar.html', {'producto': producto})
+
+
+def precio_inicial_crear(request):
+    if request.method == 'POST':
+        form = PrecioInicialForm(request.POST)
+        if form.is_valid():
+            precio = form.save()
+            messages.success(
+                request,
+                f'Precio inicial registrado para "{precio.id_producto}": ${precio.precio}'
+            )
+            return redirect('producto:precio_inicial_crear')
+    else:
+        form = PrecioInicialForm()
+
+    return render(request, 'producto/precio_inicial_form.html', {'form': form})
