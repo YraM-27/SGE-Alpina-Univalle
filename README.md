@@ -58,9 +58,7 @@ Paula Mariana Murillo Huertas - 2436488
 
 **Diagrama Entidad-Relación (DER)**
 
-(Nota: Los estudiantes deben subir su imagen a la carpeta docs/ y referenciarla aquí).
-
-Diccionario de Datos Resumido)
+![Diagrama Entidad-Relación](docs/Diagrama MER.png)
 
 
 

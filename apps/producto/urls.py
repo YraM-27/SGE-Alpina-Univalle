@@ -8,4 +8,5 @@ urlpatterns = [
     path('crear/', views.crear_producto, name='crear'),
     path('<str:pk>/editar/', views.editar_producto, name='editar'),
     path('<str:pk>/eliminar/', views.eliminar_producto, name='eliminar'),
+    path('precio-inicial/', views.precio_inicial_crear, name='precio_inicial_crear'),
 ]

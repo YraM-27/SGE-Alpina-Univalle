@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -5,7 +6,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
-from .models import Factura, VwFactura, VwDetalleFactura
+from .models import Factura, DetalleFactura, VwFactura, VwDetalleFactura
 from .forms import FacturaForm, DetalleFacturaFormSet
 from apps.inventario_producto.models import InventarioProducto
 
@@ -15,7 +16,6 @@ def factura_listar(request):
     facturas = VwFactura.objects.all().order_by('-fecha_hora_emision')
 
     numero = request.GET.get('numero_factura')
-    nit = request.GET.get('nit')
     if numero:
         facturas = facturas.filter(numero_factura__icontains=numero)
 
@@ -33,6 +33,7 @@ def factura_detalle(request, pk):
         'factura': factura,
         'detalles': detalles,
     })
+
 
 def descontar_stock(producto, cantidad_requerida):
     """
@@ -61,9 +62,30 @@ def descontar_stock(producto, cantidad_requerida):
         inventario.save()
         restante -= descuento
 
+
+def obtener_ultimos_precios():
+    """
+    Devuelve un diccionario {id_producto: ultimo_precio_unitario}
+    basado en la factura más reciente donde se vendió cada producto.
+    """
+    precios = {}
+    ultimos_detalles = (
+        DetalleFactura.objects
+        .select_related('id_factura')
+        .order_by('id_producto', '-id_factura__fecha_hora_emision')
+    )
+    vistos = set()
+    for detalle in ultimos_detalles:
+        if detalle.id_producto_id not in vistos:
+            precios[detalle.id_producto_id] = str(detalle.precio_unitario)
+            vistos.add(detalle.id_producto_id)
+    return precios
+
+
 NIT_EMPRESA = '860005224-6'
 RAZON_SOCIAL_EMPRESA = 'Alpina Productos Alimenticios S.A.'
 DIRECCION_EMPRESA = 'Km 3 via Sopo-Briceno, Sopo, Cundinamarca'
+
 
 def factura_crear(request):
     if request.method == 'POST':
@@ -104,6 +126,7 @@ def factura_crear(request):
     return render(request, 'factura/factura_form.html', {
         'form': form,
         'formset': formset,
+        'ultimos_precios': json.dumps(obtener_ultimos_precios()),
     })
 
 
@@ -111,7 +134,6 @@ def factura_editar(request, pk):
     factura = get_object_or_404(Factura, pk=pk)
     messages.warning(request, 'Las facturas emitidas no pueden ser modificadas, por control contable.')
     return redirect('factura:factura_detalle', pk=factura.pk)
-
 
 
 def factura_eliminar(request, pk):
