@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# ---
-
 **📓 Bitácora de Uso de IA \- Proyecto SGE**
 
 **Integrantes del Grupo:** Nicol Vanessa Serna Gómez \- 2537866  
