@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ---
 
 **📓 Bitácora de Uso de IA \- Proyecto SGE**
@@ -5,6 +6,14 @@
 **Integrantes del Grupo:** Nicol Vanessa Serna Gómez \- 2537866  
                                         Sergio Ernesto Patiño Rodriguez \- 2440051  
                                         Paula Mariana Murillo Huertas \- 2436488
+=======
+**📓 Bitácora de Uso de IA \- Proyecto SGE**
+
+**Integrantes del Grupo:** 
+Nicol Vanessa Serna Gómez \- 2537866  
+Sergio Ernesto Patiño Rodriguez \- 2440051  
+Paula Mariana Murillo Huertas \- 2436488
+>>>>>>> mary
 
 **Empresa:** Alpina Productos Alimenticios S.A.S. BIC.
 
