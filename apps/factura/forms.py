@@ -3,7 +3,6 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from .models import Factura, DetalleFactura, Cliente, Producto
-from apps.producto.models import PrecioInicialProducto
 
 
 class FacturaForm(forms.ModelForm):
@@ -56,14 +55,16 @@ class FacturaForm(forms.ModelForm):
 class DetalleFacturaForm(forms.ModelForm):
     class Meta:
         model = DetalleFactura
-        fields = ['id_producto', 'cantidad']  # ← precio_unitario ya no se pide
+        fields = ['id_producto', 'cantidad', 'precio_unitario']
         widgets = {
             'id_producto': forms.Select(attrs={'class': 'form-control'}),
             'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
         labels = {
             'id_producto': 'Producto',
             'cantidad': 'Cantidad',
+            'precio_unitario': 'Precio unitario',
         }
 
     def clean_cantidad(self):
@@ -72,45 +73,16 @@ class DetalleFacturaForm(forms.ModelForm):
             raise ValidationError('La cantidad debe ser mayor que cero.')
         return cantidad
 
-    def clean(self):
-        cleaned_data = super().clean()
-        producto = cleaned_data.get('id_producto')
-
-        if producto and not cleaned_data.get('DELETE'):
-            precio = self._obtener_precio_actual(producto)
-            if precio is None:
-                raise ValidationError(
-                    f'"{producto}" no tiene ningún precio registrado. '
-                    f'Debes registrar su precio inicial antes de facturarlo '
-                    f'(sección "Registrar precio inicial de producto").'
-                )
-            self._precio_calculado = precio
-
-        return cleaned_data
-
-    def _obtener_precio_actual(self, producto):
-        # 1. Prioriza el último precio realmente facturado
-        ultimo_detalle = (
-            DetalleFactura.objects
-            .filter(id_producto=producto)
-            .select_related('id_factura')
-            .order_by('-id_factura__fecha_hora_emision')
-            .first()
-        )
-        if ultimo_detalle:
-            return ultimo_detalle.precio_unitario
-
-        # 2. Si nunca se ha facturado, usa el precio inicial registrado
-        try:
-            return producto.precio_inicial.precio
-        except PrecioInicialProducto.DoesNotExist:
-            return None
+    def clean_precio_unitario(self):
+        precio_unitario = self.cleaned_data.get('precio_unitario')
+        if precio_unitario is not None and precio_unitario <= 0:
+            raise ValidationError('El precio unitario debe ser mayor que cero.')
+        return precio_unitario
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         if not instance.pk:
             instance.id_detalle_factura = uuid.uuid4().hex[:30]
-        instance.precio_unitario = self._precio_calculado
         if commit:
             instance.save()
         return instance
