@@ -4,6 +4,9 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Inventario actual</h2>
+        <a href="{% url 'inventario:inventario_crear' %}" class="btn btn-primary">
+            + Registrar stock inicial
+        </a>
     </div>
 
     {% if messages %}
@@ -14,35 +17,6 @@
             </div>
         {% endfor %}
     {% endif %}
-
-    <details class="mb-4">
-        <summary class="btn btn-primary mb-2" style="list-style: none; cursor: pointer;">
-            + Registrar stock inicial
-        </summary>
-
-        <div class="card mt-2">
-            <div class="card-body">
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-                    {% endif %}
-                    <div class="row g-3">
-                        {% for field in form %}
-                        <div class="col-md-4">
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <div class="text-danger small">{{ field.errors }}</div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <button type="submit" class="btn btn-success mt-3">Guardar stock</button>
-                </form>
-            </div>
-        </div>
-    </details>
 
     <form method="get" class="row g-2 mb-3">
         <div class="col-auto">
